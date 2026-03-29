@@ -76,3 +76,31 @@ const salvarProduto = async () => {
       Alert.alert("Erro", "Falha ao salvar o produto.");
     }
   };
+
+const excluirProduto = (id: string) => {
+    Alert.alert(
+      "Excluir",
+      "Tem certeza que deseja excluir este produto?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { 
+          text: "Excluir", style: "destructive",
+          onPress: async () => {
+            const novaLista = produtos.filter(p => p.id !== id);
+            await AsyncStorage.setItem('@crud_produtos', JSON.stringify(novaLista));
+            setProdutos(novaLista);
+          }
+        }
+      ]
+    );
+  };
+
+  const prepararEdicao = (produto: Produto) => {
+    setIdEditando(produto.id);
+    setNome(produto.nome);
+    setCategoria(produto.categoria);
+    setPreco(produto.preco.toString());
+    setQuantidade(produto.quantidade.toString());
+    setDescricao(produto.descricao);
+    setImagem(produto.imagem);
+    setStatus(produto.status);
