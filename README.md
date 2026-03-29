@@ -161,13 +161,3 @@ npx expo start
 | Guilherme Vasconcelos |
 
 ---
-
-## Entregaveis (Atividade A1)
-
-- [x] Codigo-fonte completo
-- [x] Prints das telas
-- [x] Relatorio (Relatorio_MercadinhoEsquina.docx)
-- [x] Nome dos integrantes
-
-**Data de entrega:** 01/04/2026
-**Formulario:** https://forms.gle/T5uEmz7fNj4b6xrA9
