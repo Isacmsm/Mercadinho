@@ -108,9 +108,13 @@ export default function PerfilScreen() {
   }
 
   function confirmarLogout() {
+    if (Platform.OS === 'web') {
+      if (window.confirm('Tem certeza que deseja sair da conta?')) logout();
+      return;
+    }
     Alert.alert('Sair', 'Tem certeza que deseja sair?', [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Sair', style: 'destructive', onPress: logout },
+      { text: 'Sair', style: 'destructive', onPress: () => logout() },
     ]);
   }
 

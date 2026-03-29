@@ -30,8 +30,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function logout() {
-    await AsyncStorage.removeItem(SESSAO_KEY);
     setUsuario(null);
+    try {
+      await AsyncStorage.removeItem(SESSAO_KEY);
+    } catch {
+      // sessão removida da memória mesmo que o storage falhe
+    }
   }
 
   return (

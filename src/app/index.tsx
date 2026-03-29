@@ -1,7 +1,26 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
-import { Alert, Button, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
+import {
+  Alert,
+  FlatList,
+  Image,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { Colors, Spacing } from "@/constants/theme";
+
+const VERDE = "#2E7D32";
+const PRODUTOS_KEY = "@crud_produtos";
+const CARRINHO_KEY = "@mercadinho:carrinho";
 
 interface Produto {
   id: string;
@@ -11,166 +30,305 @@ interface Produto {
   quantidade: number;
   descricao: string;
   imagem: string;
-  status: 'Ativo' | 'Inativo';
+  status: "Ativo" | "Inativo";
 }
 
-export default function App() {
-  // 2. ESTADOS TIPADOS
+interface ItemCarrinho {
+  id: string;
+  nome: string;
+  preco: number;
+  quantidade: number;
+}
+
+type Ordenacao = "nome_az" | "preco_asc" | "preco_desc";
+
+const OPCOES_ORDEM: { key: Ordenacao; label: string }[] = [
+  { key: "nome_az", label: "Nome A-Z" },
+  { key: "preco_asc", label: "Preço ↑" },
+  { key: "preco_desc", label: "Preço ↓" },
+];
+
+export default function LojaScreen() {
+  const scheme = useColorScheme();
+  const colors = Colors[scheme === "dark" ? "dark" : "light"];
+  const insets = useSafeAreaInsets();
+
   const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [categoriaFiltro, setCategoriaFiltro] = useState("Todos");
+  const [ordenacao, setOrdenacao] = useState<Ordenacao>("nome_az");
 
-  // Estados do Formulário
-  const [idEditando, setIdEditando] = useState<string | null>(null);
-  const [nome, setNome] = useState<string>('');
-  const [categoria, setCategoria] = useState<string>('');
-  const [preco, setPreco] = useState<string>(''); // Mantemos como string no input para facilitar a digitação
-  const [quantidade, setQuantidade] = useState<string>('');
-  const [descricao, setDescricao] = useState<string>('');
-  const [imagem, setImagem] = useState<string>('');
-  const [status, setStatus] = useState<'Ativo' | 'Inativo'>('Ativo');
+  useFocusEffect(
+    useCallback(() => {
+      AsyncStorage.getItem(PRODUTOS_KEY).then((val) => {
+        setProdutos(val ? (JSON.parse(val) as Produto[]) : []);
+      });
+    }, [])
+  );
 
-  useEffect(() => {
-    carregarProdutos();
-  }, []);
+  const categorias = useMemo(() => {
+    const cats = produtos
+      .filter((p) => p.status === "Ativo")
+      .map((p) => p.categoria)
+      .filter(Boolean)
+      .filter((v, i, a) => a.indexOf(v) === i);
+    return ["Todos", ...cats];
+  }, [produtos]);
 
-  const carregarProdutos = async () => {
+  const produtosExibidos = useMemo(() => {
+    let lista = produtos.filter((p) => p.status === "Ativo");
+    if (categoriaFiltro !== "Todos") {
+      lista = lista.filter((p) => p.categoria === categoriaFiltro);
+    }
+    return [...lista].sort((a, b) => {
+      if (ordenacao === "nome_az") return a.nome.localeCompare(b.nome);
+      if (ordenacao === "preco_asc") return a.preco - b.preco;
+      return b.preco - a.preco;
+    });
+  }, [produtos, categoriaFiltro, ordenacao]);
+
+  const adicionarAoCarrinho = async (produto: Produto) => {
     try {
-      const dados = await AsyncStorage.getItem('@crud_produtos');
-      if (dados) {
-        setProdutos(JSON.parse(dados) as Produto[]);
-      }
-    } catch (e) {
-      Alert.alert("Erro", "Não foi possível carregar os produtos.");
+      const dados = await AsyncStorage.getItem(CARRINHO_KEY);
+      const itens: ItemCarrinho[] = dados ? JSON.parse(dados) : [];
+      const existente = itens.find((i) => i.id === produto.id);
+
+      const novosItens: ItemCarrinho[] = existente
+        ? itens.map((i) =>
+            i.id === produto.id ? { ...i, quantidade: i.quantidade + 1 } : i
+          )
+        : [
+            ...itens,
+            { id: produto.id, nome: produto.nome, preco: produto.preco, quantidade: 1 },
+          ];
+
+      await AsyncStorage.setItem(CARRINHO_KEY, JSON.stringify(novosItens));
+      Alert.alert("Carrinho", `"${produto.nome}" adicionado ao carrinho.`);
+    } catch {
+      Alert.alert("Erro", "Não foi possível adicionar ao carrinho.");
     }
   };
 
-  const salvarProduto = async () => {
-    if (!nome || !preco || !quantidade || !imagem) {
-      Alert.alert("Atenção", "Preencha os campos obrigatórios e adicione uma URL de imagem.");
-      return;
-    }
-
-    const novoProduto: Produto = {
-      id: idEditando ? idEditando : Date.now().toString(),
-      nome,
-      categoria,
-      preco: parseFloat(preco),
-      quantidade: parseInt(quantidade, 10),
-      descricao,
-      imagem,
-      status
-    };
-
-    try {
-      let novaLista: Produto[] = [];
-      if (idEditando) {
-        novaLista = produtos.map((p: Produto) => p.id === idEditando ? novoProduto : p);
-      } else {
-        novaLista = [...produtos, novoProduto];
-      }
-
-      await AsyncStorage.setItem('@crud_produtos', JSON.stringify(novaLista));
-      setProdutos(novaLista);
-      limparFormulario();
-    } catch (e) {
-      Alert.alert("Erro", "Falha ao salvar o produto.");
-    }
-  };
-
-  const excluirProduto = (id: string) => {
-    Alert.alert(
-      "Excluir",
-      "Tem certeza que deseja excluir este produto?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Excluir", style: "destructive",
-          onPress: async () => {
-            const novaLista = produtos.filter((p: Produto) => p.id !== id);
-            await AsyncStorage.setItem('@crud_produtos', JSON.stringify(novaLista));
-            setProdutos(novaLista);
-          }
-        }
-      ]
-    );
-  };
-
-  const prepararEdicao = (produto: Produto) => {
-    setIdEditando(produto.id);
-    setNome(produto.nome);
-    setCategoria(produto.categoria);
-    setPreco(produto.preco.toString());
-    setQuantidade(produto.quantidade.toString());
-    setDescricao(produto.descricao);
-    setImagem(produto.imagem);
-    setStatus(produto.status);
-  };
-
-  const limparFormulario = () => {
-    setIdEditando(null);
-    setNome('');
-    setCategoria('');
-    setPreco('');
-    setQuantidade('');
-    setDescricao('');
-    setImagem('');
-    setStatus('Ativo');
-  };
+  const contentPadding = Platform.select({
+    web: { paddingTop: Spacing.six },
+    default: { paddingTop: insets.top },
+  });
 
   const renderItem = ({ item }: { item: Produto }) => (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: colors.backgroundElement }]}>
       <Image source={{ uri: item.imagem }} style={styles.imagemProduto} />
-      <Text style={styles.tituloCard}>{item.nome}</Text>
-      <Text>Categoria: {item.categoria}</Text>
-      <Text>Preço: R$ {item.preco.toFixed(2)} | Qtd: {item.quantidade}</Text>
-      <Text>Status: {item.status}</Text>
+      <View style={styles.cardCorpo}>
+        <ThemedText type="smallBold" style={styles.tituloCard} numberOfLines={1}>
+          {item.nome}
+        </ThemedText>
 
-      <View style={styles.botoesCard}>
-        <TouchableOpacity style={styles.btnEditar} onPress={() => prepararEdicao(item)}>
-          <Text style={styles.textoBtn}>Editar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.btnExcluir} onPress={() => excluirProduto(item.id)}>
-          <Text style={styles.textoBtn}>Excluir</Text>
+        {item.categoria !== "" && (
+          <ThemedText type="small" themeColor="textSecondary">
+            {item.categoria}
+          </ThemedText>
+        )}
+
+        <View style={styles.cardPrecoLinha}>
+          <ThemedText type="smallBold" style={{ color: VERDE, fontSize: 16 }}>
+            R$ {item.preco.toFixed(2)}
+          </ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            Qtd: {item.quantidade}
+          </ThemedText>
+        </View>
+
+        {item.descricao !== "" && (
+          <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
+            {item.descricao}
+          </ThemedText>
+        )}
+
+        <TouchableOpacity
+          style={[styles.btnCarrinho, { backgroundColor: VERDE }]}
+          onPress={() => adicionarAoCarrinho(item)}
+          activeOpacity={0.8}
+        >
+          <ThemedText type="smallBold" style={styles.btnCarrinhoTexto}>
+            Adicionar ao Carrinho
+          </ThemedText>
         </TouchableOpacity>
       </View>
     </View>
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.form}>
-        <Text style={styles.tituloForm}>{idEditando ? 'Editar Produto' : 'Novo Produto'}</Text>
-
-        <TextInput style={styles.input} placeholder="Nome do Produto *" value={nome} onChangeText={setNome} />
-        <TextInput style={styles.input} placeholder="Categoria" value={categoria} onChangeText={setCategoria} />
-        <TextInput style={styles.input} placeholder="Preço *" value={preco} onChangeText={setPreco} keyboardType="numeric" />
-        <TextInput style={styles.input} placeholder="Quantidade *" value={quantidade} onChangeText={setQuantidade} keyboardType="numeric" />
-        <TextInput style={styles.input} placeholder="Descrição" value={descricao} onChangeText={setDescricao} multiline numberOfLines={2} />
-        <TextInput style={styles.input} placeholder="URL da Imagem *" value={imagem} onChangeText={setImagem} keyboardType="url" />
-
-        <Button title={idEditando ? "Atualizar Produto" : "Adicionar Produto"} onPress={salvarProduto} />
-        {idEditando && <View style={{marginTop: 5}}><Button title="Cancelar Edição" color="red" onPress={limparFormulario} /></View>}
+    <ThemedView style={[styles.container, contentPadding]}>
+      {/* Cabeçalho */}
+      <View style={styles.cabecalho}>
+        <ThemedText type="subtitle" style={styles.titulo}>
+          Loja
+        </ThemedText>
       </View>
 
-      <FlatList
-        data={produtos}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
-    </View>
+      {/* Filtros e Ordenação */}
+      <View
+        style={[
+          styles.controlesContainer,
+          { backgroundColor: colors.backgroundElement },
+        ]}
+      >
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoriasLista}
+        >
+          {categorias.map((cat) => (
+            <TouchableOpacity
+              key={cat}
+              style={[
+                styles.categoriaBtn,
+                {
+                  backgroundColor:
+                    categoriaFiltro === cat ? VERDE : colors.backgroundSelected,
+                },
+              ]}
+              onPress={() => setCategoriaFiltro(cat)}
+              activeOpacity={0.8}
+            >
+              <ThemedText
+                type="small"
+                style={{
+                  color: categoriaFiltro === cat ? "#fff" : colors.textSecondary,
+                }}
+              >
+                {cat}
+              </ThemedText>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        <View style={styles.ordemLinha}>
+          {OPCOES_ORDEM.map((op) => (
+            <TouchableOpacity
+              key={op.key}
+              style={[
+                styles.ordemBtn,
+                {
+                  backgroundColor:
+                    ordenacao === op.key ? VERDE : colors.backgroundSelected,
+                },
+              ]}
+              onPress={() => setOrdenacao(op.key)}
+              activeOpacity={0.8}
+            >
+              <ThemedText
+                type="small"
+                style={{
+                  color: ordenacao === op.key ? "#fff" : colors.textSecondary,
+                  fontSize: 12,
+                }}
+              >
+                {op.label}
+              </ThemedText>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      {/* Lista */}
+      {produtosExibidos.length === 0 ? (
+        <View style={styles.vazio}>
+          <ThemedText style={styles.vazioEmoji}>🛍️</ThemedText>
+          <ThemedText type="subtitle" style={styles.vazioTitulo}>
+            Nenhum produto
+          </ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            {categoriaFiltro !== "Todos"
+              ? "Nenhum produto nesta categoria"
+              : "A loja está vazia no momento"}
+          </ThemedText>
+        </View>
+      ) : (
+        <FlatList
+          data={produtosExibidos}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.lista}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5', paddingTop: 40 },
-  form: { padding: 20, backgroundColor: '#fff', elevation: 3, marginBottom: 10 },
-  tituloForm: { fontSize: 20, fontWeight: 'bold', marginBottom: 15, textAlign: 'center' },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 5, padding: 10, marginBottom: 10 },
-  card: { backgroundColor: '#fff', margin: 10, padding: 15, borderRadius: 8, elevation: 2 },
-  imagemProduto: { width: '100%', height: 150, borderRadius: 5, marginBottom: 10, resizeMode: 'cover' },
-  tituloCard: { fontSize: 18, fontWeight: 'bold' },
-  botoesCard: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
-  btnEditar: { backgroundColor: '#007bff', padding: 10, borderRadius: 5, flex: 1, marginRight: 5, alignItems: 'center' },
-  btnExcluir: { backgroundColor: '#dc3545', padding: 10, borderRadius: 5, flex: 1, marginLeft: 5, alignItems: 'center' },
-  textoBtn: { color: '#fff', fontWeight: 'bold' }
+  container: { flex: 1 },
+  cabecalho: {
+    paddingHorizontal: Spacing.four,
+    paddingTop: Spacing.three,
+    paddingBottom: Spacing.two,
+  },
+  titulo: { fontSize: 28 },
+  controlesContainer: {
+    marginHorizontal: Spacing.three,
+    marginBottom: Spacing.two,
+    borderRadius: Spacing.three,
+    padding: Spacing.three,
+    gap: Spacing.two,
+  },
+  categoriasLista: {
+    gap: Spacing.two,
+    paddingRight: Spacing.two,
+  },
+  categoriaBtn: {
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.one,
+    borderRadius: Spacing.three,
+  },
+  ordemLinha: {
+    flexDirection: "row",
+    gap: Spacing.two,
+  },
+  ordemBtn: {
+    flex: 1,
+    paddingVertical: Spacing.one,
+    borderRadius: Spacing.two,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  lista: {
+    padding: Spacing.three,
+    gap: Spacing.three,
+    paddingBottom: Spacing.six,
+  },
+  card: {
+    borderRadius: Spacing.three,
+    overflow: "hidden",
+  },
+  imagemProduto: {
+    width: "100%",
+    height: 140,
+    resizeMode: "cover",
+  },
+  cardCorpo: {
+    padding: Spacing.three,
+    gap: Spacing.one,
+  },
+  tituloCard: { fontSize: 16 },
+  cardPrecoLinha: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: Spacing.one,
+  },
+  btnCarrinho: {
+    marginTop: Spacing.two,
+    height: 40,
+    borderRadius: Spacing.two,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  btnCarrinhoTexto: { color: "#fff", fontSize: 14 },
+  vazio: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: Spacing.two,
+  },
+  vazioEmoji: { fontSize: 64 },
+  vazioTitulo: { fontSize: 22 },
 });
