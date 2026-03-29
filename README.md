@@ -1,56 +1,107 @@
-# Welcome to your Expo app 👋
+# Mercadinho Esquina
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicativo de cadastro e gerenciamento de produtos desenvolvido com **Expo + React Native**, como atividade prática da disciplina.
 
-## Get started
+---
 
-1. Install dependencies
+## Funcionalidades
 
-   ```bash
-   npm install
-   ```
+### Area do Cliente (Loja)
+- Listagem de produtos ativos com imagem, nome, categoria, preco e descricao
+- Filtro por categoria (pills horizontais dinamicas)
+- Ordenacao por Nome A-Z, Preco menor e Preco maior
+- Botao **Adicionar ao Carrinho** em cada produto
 
-2. Start the app
+### Area do Vendedor (Gerenciar)
+- CRUD completo: adicionar, editar e excluir produtos
+- Formulario com campos: Nome, Categoria, Preco, Quantidade, Descricao, URL da Imagem e Status
+- Validacoes: campos obrigatorios, preco/quantidade numericos, URL de imagem com Regex
+- Filtro por categoria e ordenacao (mesmos da Loja)
+- Confirmacao de exclusao nativa
 
-   ```bash
-   npx expo start
-   ```
+### Carrinho
+- Adicao de itens a partir da tela Loja
+- Ajuste de quantidade e remocao de itens
+- Calculo do total em tempo real
+- Finalizacao de pedido com alerta de sucesso e retorno a Loja
 
-In the output, you'll find options to open the app in a
+### Perfil
+- Exibicao do usuario logado
+- Cadastro de cartao de pagamento (numero formatado)
+- Cadastro de endereco de entrega (CEP formatado)
+- Botao de sair da conta
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Autenticacao
+- Tela de splash animada na abertura
+- Cadastro de conta com validacao completa (nome, usuario, senha)
+- Login com verificacao de credenciais
+- Sessao persistente via AsyncStorage (permanece logado ao fechar o app)
+- Logout instantaneo
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+## Tecnologias
 
-When you're ready, run:
+| Tecnologia | Uso |
+|---|---|
+| Expo 55 + React Native | Base do app (iOS, Android, Web) |
+| Expo Router | Navegacao por arquivos |
+| AsyncStorage | Persistencia local (produtos, carrinho, sessao, perfil) |
+| React Native Reanimated | Animacoes de splash e icones |
+| React Navigation | Temas dark/light |
+| TypeScript | Tipagem estatica |
 
-```bash
-npm run reset-project
+---
+
+## Estrutura do Projeto
+
+```
+src/
+├── app/
+│   ├── _layout.tsx        # Layout raiz com autenticacao
+│   ├── index.tsx          # Tela Loja (cliente)
+│   ├── vendedor.tsx       # Tela Gerenciar (CRUD)
+│   ├── carrinho.tsx       # Tela Carrinho
+│   └── perfil.tsx         # Tela Perfil
+├── components/
+│   ├── login-screen.tsx
+│   ├── registro-screen.tsx
+│   ├── splash-screen.tsx
+│   ├── app-tabs.tsx       # Tabs nativas (iOS/Android)
+│   └── app-tabs.web.tsx   # Tabs responsivas (Web)
+├── context/
+│   └── auth.tsx           # AuthContext (login, logout, sessao)
+└── constants/
+    └── theme.ts           # Cores, espacamentos, fontes
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-### Other setup steps
+## Como rodar
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+**1. Instalar dependencias**
+```bash
+npm install
+```
 
-## Learn more
+**2. Iniciar o app**
+```bash
+npx expo start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Apos iniciar, escolha a plataforma:
+- Pressione `a` para abrir no emulador Android
+- Pressione `i` para abrir no simulador iOS
+- Pressione `w` para abrir no navegador (Web)
+- Escaneie o QR Code com o **Expo Go** no celular
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## Entregaveis (Atividade A1)
 
-Join our community of developers creating universal apps.
+- [x] Codigo-fonte completo
+- [ ] Prints das telas
+- [ ] Relatorio com descricao do projeto e nome dos integrantes
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+**Data de entrega:** 01/04/2026
+**Formulario:** https://forms.gle/T5uEmz7fNj4b6xrA9
