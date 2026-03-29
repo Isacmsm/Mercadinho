@@ -17,7 +17,7 @@ interface Produto {
 export default function App() {
   // 2. ESTADOS TIPADOS
   const [produtos, setProdutos] = useState<Produto[]>([]);
-  
+
   // Estados do Formulário
   const [idEditando, setIdEditando] = useState<string | null>(null);
   const [nome, setNome] = useState<string>('');
@@ -53,7 +53,7 @@ export default function App() {
       id: idEditando ? idEditando : Date.now().toString(),
       nome,
       categoria,
-      preco: parseFloat(preco), 
+      preco: parseFloat(preco),
       quantidade: parseInt(quantidade, 10),
       descricao,
       imagem,
@@ -82,7 +82,7 @@ export default function App() {
       "Tem certeza que deseja excluir este produto?",
       [
         { text: "Cancelar", style: "cancel" },
-        { 
+        {
           text: "Excluir", style: "destructive",
           onPress: async () => {
             const novaLista = produtos.filter((p: Produto) => p.id !== id);
@@ -123,7 +123,7 @@ export default function App() {
       <Text>Categoria: {item.categoria}</Text>
       <Text>Preço: R$ {item.preco.toFixed(2)} | Qtd: {item.quantidade}</Text>
       <Text>Status: {item.status}</Text>
-      
+
       <View style={styles.botoesCard}>
         <TouchableOpacity style={styles.btnEditar} onPress={() => prepararEdicao(item)}>
           <Text style={styles.textoBtn}>Editar</Text>
@@ -139,14 +139,14 @@ export default function App() {
     <View style={styles.container}>
       <View style={styles.form}>
         <Text style={styles.tituloForm}>{idEditando ? 'Editar Produto' : 'Novo Produto'}</Text>
-        
+
         <TextInput style={styles.input} placeholder="Nome do Produto *" value={nome} onChangeText={setNome} />
         <TextInput style={styles.input} placeholder="Categoria" value={categoria} onChangeText={setCategoria} />
         <TextInput style={styles.input} placeholder="Preço *" value={preco} onChangeText={setPreco} keyboardType="numeric" />
         <TextInput style={styles.input} placeholder="Quantidade *" value={quantidade} onChangeText={setQuantidade} keyboardType="numeric" />
         <TextInput style={styles.input} placeholder="Descrição" value={descricao} onChangeText={setDescricao} multiline numberOfLines={2} />
         <TextInput style={styles.input} placeholder="URL da Imagem *" value={imagem} onChangeText={setImagem} keyboardType="url" />
-        
+
         <Button title={idEditando ? "Atualizar Produto" : "Adicionar Produto"} onPress={salvarProduto} />
         {idEditando && <View style={{marginTop: 5}}><Button title="Cancelar Edição" color="red" onPress={limparFormulario} /></View>}
       </View>
