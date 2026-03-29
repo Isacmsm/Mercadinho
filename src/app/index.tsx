@@ -15,9 +15,10 @@ interface Produto {
 }
 
 export default function App() {
-  
+  // 2. ESTADOS TIPADOS
   const [produtos, setProdutos] = useState<Produto[]>([]);
   
+  // Estados do Formulário
   const [idEditando, setIdEditando] = useState<string | null>(null);
   const [nome, setNome] = useState<string>('');
   const [categoria, setCategoria] = useState<string>('');
@@ -40,5 +41,6 @@ export default function App() {
     } catch (e) {
       Alert.alert("Erro", "Não foi possível carregar os produtos.");
     }
-  };
-}
+  }
+};
+
