@@ -8,7 +8,7 @@ Aplicativo de cadastro e gerenciamento de produtos desenvolvido com **Expo + Rea
 
 ### 1. Loja — Area do Cliente (`src/app/index.tsx`)
 
-<img src="prints/Captura%20de%20tela%202026-03-29%20161539.png" width="280" alt="Tela Loja"/>
+<img src="prints/tela-loja.png" width="280" alt="Tela Loja"/>
 
 A tela principal que o cliente ve ao abrir o app. O fluxo de codigo funciona assim:
 
@@ -22,7 +22,7 @@ A tela principal que o cliente ve ao abrir o app. O fluxo de codigo funciona ass
 
 ### 2. Gerenciar — Area do Vendedor (`src/app/vendedor.tsx`)
 
-<img src="prints/Captura%20de%20tela%202026-03-29%20161413.png" width="280" alt="Tela Gerenciar"/>
+<img src="prints/tela-gerenciar.png" width="280" alt="Tela Gerenciar"/>
 
 Painel administrativo completo. O fluxo:
 
@@ -41,7 +41,7 @@ Painel administrativo completo. O fluxo:
 
 ### 3. Carrinho (`src/app/carrinho.tsx`)
 
-<img src="prints/Captura%20de%20tela%202026-03-29%20161658.png" width="280" alt="Tela Carrinho"/>
+<img src="prints/tela-carrinho.png" width="280" alt="Tela Carrinho"/>
 
 Tela de compras do cliente. O fluxo:
 
@@ -59,7 +59,7 @@ Tela de compras do cliente. O fluxo:
 
 ### 4. Perfil (`src/app/perfil.tsx`)
 
-<img src="prints/Captura%20de%20tela%202026-03-29%20161802.png" width="280" alt="Tela Perfil"/>
+<img src="prints/tela-perfil.png" width="280" alt="Tela Perfil"/>
 
 Tela de dados pessoais do usuario logado. O fluxo:
 
