@@ -1,29 +1,31 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { useColorScheme } from 'react-native';
+import { StyleSheet, useColorScheme, View } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import AppTabs from '@/components/app-tabs';
 import { LoginScreen } from '@/components/login-screen';
 import { RegistroScreen } from '@/components/registro-screen';
 import { SplashScreen } from '@/components/splash-screen';
+import { AuthProvider, useAuth } from '@/context/auth';
 
 type Tela = 'splash' | 'login' | 'registro';
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const [tela, setTela] = useState<Tela>('splash');
-  const [logado, setLogado] = useState(false);
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <InnerLayout />
+    </AuthProvider>
+  );
+}
 
-  function renderTela() {
-    if (logado) {
-      return (
-        <>
-          <AnimatedSplashOverlay />
-          <AppTabs />
-        </>
-      );
-    }
+function InnerLayout() {
+  const colorScheme = useColorScheme();
+  const { usuario, login } = useAuth();
+  const [tela, setTela] = useState<Tela>('splash');
+
+  function renderOverlay() {
+    if (usuario) return null;
 
     switch (tela) {
       case 'splash':
@@ -39,16 +41,24 @@ export default function TabLayout() {
       default:
         return (
           <LoginScreen
-            onLogin={() => setLogado(true)}
+            onLogin={(username: string) => { login(username); }}
             onIrParaRegistro={() => setTela('registro')}
           />
         );
     }
   }
 
+  const overlay = renderOverlay();
+
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      {renderTela()}
+      <AnimatedSplashOverlay />
+      <AppTabs />
+      {overlay && (
+        <View style={StyleSheet.absoluteFill}>
+          {overlay}
+        </View>
+      )}
     </ThemeProvider>
   );
 }
