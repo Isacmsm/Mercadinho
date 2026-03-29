@@ -1,5 +1,5 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, useColorScheme, View } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
@@ -23,6 +23,12 @@ function InnerLayout() {
   const colorScheme = useColorScheme();
   const { usuario, login } = useAuth();
   const [tela, setTela] = useState<Tela>('splash');
+
+  // Garante que após qualquer login (fresh ou restaurado do AsyncStorage),
+  // `tela` esteja em 'login' — assim o logout sempre exibe o formulário de login.
+  useEffect(() => {
+    if (usuario) setTela('login');
+  }, [usuario]);
 
   function renderOverlay() {
     if (usuario) return null;

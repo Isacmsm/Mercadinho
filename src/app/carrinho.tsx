@@ -9,7 +9,7 @@ import {
   useColorScheme,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -67,9 +67,9 @@ export default function CarrinhoScreen() {
       await AsyncStorage.removeItem(CARRINHO_KEY);
       setItens([]);
       Alert.alert(
-        'Pedido realizado!',
+        '🎉 Pedido realizado!',
         'Seu pedido foi recebido e está sendo preparado.',
-        [{ text: 'OK' }]
+        [{ text: 'Ver a Loja', onPress: () => router.push('/') }]
       );
     } finally {
       setFinalizando(false);
