@@ -104,3 +104,10 @@ const excluirProduto = (id: string) => {
     setDescricao(produto.descricao);
     setImagem(produto.imagem);
     setStatus(produto.status);
+  };
+
+  const limparFormulario = () => {
+    setIdEditando(null); setNome(''); setCategoria('');
+    setPreco(''); setQuantidade(''); setDescricao('');
+    setImagem(''); setStatus('Ativo');
+  };
