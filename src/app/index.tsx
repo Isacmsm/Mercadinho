@@ -44,3 +44,35 @@ export default function App() {
   }
 };
 
+const salvarProduto = async () => {
+    if (!nome || !preco || !quantidade || !imagem) {
+      Alert.alert("Atenção", "Preencha os campos obrigatórios e adicione uma URL de imagem.");
+      return;
+    }
+
+    const novoProduto: Produto = {
+      id: idEditando ? idEditando : Date.now().toString(),
+      nome,
+      categoria,
+      preco: parseFloat(preco), 
+      quantidade: parseInt(quantidade, 10),
+      descricao,
+      imagem,
+      status
+    };
+
+    try {
+      let novaLista: Produto[] = [];
+      if (idEditando) {
+        novaLista = produtos.map(p => p.id === idEditando ? novoProduto : p);
+      } else {
+        novaLista = [...produtos, novoProduto];
+      }
+
+      await AsyncStorage.setItem('@crud_produtos', JSON.stringify(novaLista));
+      setProdutos(novaLista);
+      limparFormulario();
+    } catch (e) {
+      Alert.alert("Erro", "Falha ao salvar o produto.");
+    }
+  };
