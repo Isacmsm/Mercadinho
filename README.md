@@ -8,7 +8,7 @@ Aplicativo de cadastro e gerenciamento de produtos desenvolvido com **Expo + Rea
 
 ### 1. Loja — Area do Cliente (`src/app/index.tsx`)
 
-<img src="prints/tela-loja.png" width="280" alt="Tela Loja"/>
+<img src="Prints/tela-loja.png" width="280" alt="Tela Loja"/>
 
 A tela principal que o cliente ve ao abrir o app. O fluxo de codigo funciona assim:
 
@@ -22,7 +22,7 @@ A tela principal que o cliente ve ao abrir o app. O fluxo de codigo funciona ass
 
 ### 2. Gerenciar — Area do Vendedor (`src/app/vendedor.tsx`)
 
-<img src="prints/tela-gerenciar.png" width="280" alt="Tela Gerenciar"/>
+<img src="Prints/tela-gerenciar.png" width="280" alt="Tela Gerenciar"/>
 
 Painel administrativo completo. O fluxo:
 
@@ -41,7 +41,7 @@ Painel administrativo completo. O fluxo:
 
 ### 3. Carrinho (`src/app/carrinho.tsx`)
 
-<img src="prints/tela-carrinho.png" width="280" alt="Tela Carrinho"/>
+<img src="Prints/tela-carrinho.png" width="280" alt="Tela Carrinho"/>
 
 Tela de compras do cliente. O fluxo:
 
@@ -59,7 +59,7 @@ Tela de compras do cliente. O fluxo:
 
 ### 4. Perfil (`src/app/perfil.tsx`)
 
-<img src="prints/tela-perfil.png" width="280" alt="Tela Perfil"/>
+<img src="Prints/tela-perfil.png" width="280" alt="Tela Perfil"/>
 
 Tela de dados pessoais do usuario logado. O fluxo:
 
