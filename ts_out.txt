@@ -1,0 +1,12 @@
+error TS2688: Cannot find type definition file for 'babel__generator'.
+  The file is in the program because:
+    Entry point for implicit type library 'babel__generator'
+error TS2688: Cannot find type definition file for 'babel__template'.
+  The file is in the program because:
+    Entry point for implicit type library 'babel__template'
+error TS2688: Cannot find type definition file for 'istanbul-lib-report'.
+  The file is in the program because:
+    Entry point for implicit type library 'istanbul-lib-report'
+error TS2688: Cannot find type definition file for 'node'.
+  The file is in the program because:
+    Entry point for implicit type library 'node'
