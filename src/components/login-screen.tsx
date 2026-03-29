@@ -25,7 +25,7 @@ export type Usuario = {
 };
 
 type Props = {
-  onLogin: () => void;
+  onLogin: (username: string) => void;
   onIrParaRegistro: () => void;
 };
 
@@ -60,7 +60,7 @@ export function LoginScreen({ onLogin, onIrParaRegistro }: Props) {
         return;
       }
 
-      onLogin();
+      onLogin(encontrado.usuario);
     } catch {
       setErro('Erro ao realizar login. Tente novamente.');
     } finally {
